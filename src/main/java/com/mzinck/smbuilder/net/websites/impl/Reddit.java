@@ -1,6 +1,6 @@
-package com.mzinck.smbuilder.websites.misc;
+package com.mzinck.smbuilder.net.websites.impl;
 
-import com.mzinck.smbuilder.websites.WebsiteHandler;
+import com.mzinck.smbuilder.net.websites.WebsiteHandler;
 
 /**
  * This class is used to scrape Reddit and return quality posts.

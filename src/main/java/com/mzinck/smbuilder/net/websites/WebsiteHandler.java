@@ -1,4 +1,4 @@
-package com.mzinck.smbuilder.websites;
+package com.mzinck.smbuilder.net.websites;
 
 import com.mzinck.smbuilder.accounts.Tags;
 import com.mzinck.smbuilder.posts.Post;
