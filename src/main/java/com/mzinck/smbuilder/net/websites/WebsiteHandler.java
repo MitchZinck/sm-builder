@@ -1,9 +1,10 @@
 package com.mzinck.smbuilder.net.websites;
 
-import com.mzinck.smbuilder.accounts.Tags;
 import com.mzinck.smbuilder.posts.Post;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * An interface to use with the websites.
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 
 public interface WebsiteHandler {
 
-    public boolean scrapePosts(Tags tags);
+    public boolean scrapePosts(Map<URL, String> map);
     public ArrayList<Post> getPosts();
 
 }
