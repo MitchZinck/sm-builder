@@ -29,7 +29,7 @@ public class ContentRetrieve {
         connection.setPassword(config.getSqlPassword());
         connection.connect();
         Long[] ids = connection.grabAllAccountIds();
-        
+
     }
 
 }
