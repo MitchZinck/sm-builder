@@ -27,9 +27,4 @@ public interface ContentRetrieveHandler  {
      */
     public Tag getTag();
 
-    /**
-     * Sets the configuration parameters such as login info.
-     */
-    public void setConfig();
-
 }

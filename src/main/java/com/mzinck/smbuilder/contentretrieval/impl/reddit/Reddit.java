@@ -15,10 +15,7 @@ import net.dean.jraw.oauth.Credentials;
 import net.dean.jraw.oauth.OAuthHelper;
 import net.dean.jraw.pagination.DefaultPaginator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * Retrieves content from Reddit.com
@@ -40,7 +37,7 @@ public class Reddit implements ContentRetrieveHandler {
     private String clientSecret = "";
 
     /**
-     * Empty contstructor.
+     * Empty constructor.
      */
     public Reddit() {}
 
@@ -100,23 +97,35 @@ public class Reddit implements ContentRetrieveHandler {
         return tag;
     }
 
-    /**
-     * Sets the configuration parameters such as login info.
-     */
-    @Override
-    public void setConfig() {
-        File file = new File("C:\\Users\\Mitchell\\Desktop\\config.txt");
-        try {
-            Scanner scan = new Scanner(file);
-            username = scan.nextLine();
-            password = scan.nextLine();
-            clientId = scan.nextLine();
-            clientSecret = scan.nextLine();
-            scan.close();
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    public String getUsername() {
+        return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
+    }
 }

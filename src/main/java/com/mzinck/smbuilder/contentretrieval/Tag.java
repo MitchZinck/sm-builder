@@ -1,9 +1,8 @@
 package com.mzinck.smbuilder.contentretrieval;
 
-import java.util.ArrayList;
-
 /**
- * @author Mitchell Zinck Copyright (2017)
+ * Represents a tag or set of tags related to content retrieval.
+ * @author Mitchell Zinck Copyright (2018)
  * @version 1.0
  * @see <a href="github.com/mitchzinck">Github</a>
  */
