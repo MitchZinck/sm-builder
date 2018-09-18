@@ -1,5 +1,7 @@
 package com.mzinck.smbuilder.contentretrieval;
 
+import java.util.ArrayList;
+
 /**
  * Represents a tag or set of tags related to content retrieval.
  * @author Mitchell Zinck Copyright (2018)
@@ -17,13 +19,13 @@ public class Tag {
     /**
      * The tags that are needed to retrieve a specific type of content.
      */
-    private String[] tags;
+    private ArrayList<String> tags;
 
     /**
      * Constructor
-     * @param tag The tag that is needed to retrieve a specific type of content.
+     * @param tags The tag that is needed to retrieve a specific type of content.
      */
-    public Tag(String... tags) {
+    public Tag(ArrayList<String> tags) {
         this.tags = tags;
     }
 

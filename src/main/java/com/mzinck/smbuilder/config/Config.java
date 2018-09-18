@@ -22,6 +22,11 @@ public class Config {
     private String sqlPassword = "";
 
     /**
+     * Empty constructor.
+     */
+    public Config() {};
+
+    /**
      * Sets the configuration parameters such as login info.
      */
     public void setConfig() {

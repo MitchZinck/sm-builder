@@ -1,5 +1,8 @@
 package com.mzinck.smbuilder.net;
 
+import com.mzinck.smbuilder.Account.Account;
+import com.mzinck.smbuilder.contentretrieval.Tag;
+
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -18,9 +21,16 @@ public class Database {
     private String url, user, password;
 
     /**
-     * Empty constructor.
+     * Constructor that sets database config info.
+     * @param url the connection url.
+     * @param user the login username.
+     * @param password the login password.
      */
-    public Database() {}// SET SQL_SAFE_UPDATES = 0;
+    public Database(String url, String user, String password) {
+        this.url = url;
+        this.user = user;
+        this.password = password;
+    }// SET SQL_SAFE_UPDATES = 0;
 
     /**
      * Connect to the database.
@@ -55,20 +65,81 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            closeConnection();
         }
 
         return ids.toArray(new Long[0]);
+    }
+
+    /**
+     * Grabs all active accounts from the database.
+     * @return an arraylist of accounts.
+     */
+    public ArrayList<Account> grabAllAccounts() {
+        ArrayList<Account> accounts = new ArrayList<Account>();
+        try {
+            if (connection.isClosed()) {
+                connection = DriverManager.getConnection(url, user, password);
+            }
+
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.accounts");
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                accounts.add(new Account(resultSet.getLong("id"), resultSet.getString("username"),
+                        resultSet.getString("displayname"), resultSet.getString("password"),
+                        resultSet.getString("bio"), resultSet.getString("profilepic"),
+                        resultSet.getString("email"), resultSet.getString("tag")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return accounts;
+    }
+
+    /**
+     * Grabs all active accounts from the database.
+     * @return an arraylist of accounts.
+     */
+    public Tag getTags(long id) {
+        ArrayList<String> tags = null;
+        try {
+            if (connection.isClosed()) {
+                connection = DriverManager.getConnection(url, user, password);
+            }
+
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.tags WHERE `tagid` = ?");
+            statement.setLong(1, id);
+            resultSet = statement.executeQuery();
+
+            tags = new ArrayList<String>();
+            while (resultSet.next()) {
+                tags.add(resultSet.getString("tagname"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return new Tag(tags);
+    }
+
+    public void closeConnection() {
+        try {
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public Connection getConnection() {

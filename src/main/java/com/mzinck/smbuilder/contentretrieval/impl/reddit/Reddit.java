@@ -37,9 +37,18 @@ public class Reddit implements ContentRetrieveHandler {
     private String clientSecret = "";
 
     /**
-     * Empty constructor.
+     * Constructor that sets reddit api login info.
+     * @param username the reddit api account username.
+     * @param password the reddit api account password.
+     * @param clientId the reddit api account client id.
+     * @param clientSecret the reddit api client secret.
      */
-    public Reddit() {}
+    public Reddit(String username, String password, String clientId, String clientSecret) {
+        this.username = username;
+        this.password = password;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+    }
 
     /**
      * Retrieves top 10 pieces of content in the last 24 hours.
