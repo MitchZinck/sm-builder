@@ -4,4 +4,4 @@
  * @version 1.0
  * @see <a href="github.com/mitchzinck">Github</a>
  */
-package com.mzinck.smbuilder.Account;
+package com.mzinck.smbuilder.account;

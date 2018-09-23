@@ -1,6 +1,6 @@
 package com.mzinck.smbuilder.net;
 
-import com.mzinck.smbuilder.Account.Account;
+import com.mzinck.smbuilder.account.Account;
 import com.mzinck.smbuilder.contentretrieval.Content;
 import com.mzinck.smbuilder.contentretrieval.Tag;
 
@@ -129,6 +129,10 @@ public class Database {
         return new Tag(tags);
     }
 
+    /**
+     * Stores content into the database for future retrieval.
+     * @param content the content to be stored.
+     */
     public void storeContent(Content content) {
         try {
             if (connection.isClosed()) {
@@ -141,7 +145,7 @@ public class Database {
             statement.setString(2, content.getUrl());
             statement.setString(3, content.getSubreddit());
             statement.setLong(4, content.getPoints());
-            statement.setLong(5, 0);
+            statement.setBoolean(5, false);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

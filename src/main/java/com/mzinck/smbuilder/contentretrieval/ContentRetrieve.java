@@ -1,6 +1,6 @@
 package com.mzinck.smbuilder.contentretrieval;
 
-import com.mzinck.smbuilder.Account.Account;
+import com.mzinck.smbuilder.account.Account;
 import com.mzinck.smbuilder.config.Config;
 import com.mzinck.smbuilder.contentretrieval.impl.reddit.Reddit;
 import com.mzinck.smbuilder.net.Database;
@@ -9,25 +9,32 @@ import java.util.ArrayList;
 
 /**
  * Retrieves content related to specific tags and stores the content for later posting.
- * @author Mitchell Zinck Copyright (2017)
+ * @author Mitchell Zinck Copyright (2018)
  * @version 1.0
  * @see <a href="github.com/mitchzinck">Github</a>
  */
 
 public class ContentRetrieve {
 
-    public static ArrayList<Tag> tags;
-    public static Config config;
-    public static Database connection;
+    public ArrayList<Tag> tags;
+    public Database connection;
+    public Config config;
 
-    public static void main(String[] args) {
+    public ContentRetrieve(Database connection, Config config) {
+        this.connection = connection;
+        this.config = config;
+    }
+
+    /**
+     * Initializes a database connection. Retrieves content and then stores.
+     */
+    public void initiate() {
         tags = new ArrayList<Tag>();
-        config = new Config();
-        config.setConfig();
-        connection = new Database(config.getSqlURL(), config.getSqlUser(), config.getSqlPassword());
         connection.connect();
-        setTags();
+    }
 
+    public void retrieveAndStoreContent() {
+        setTags();
         ContentRetrieveHandler retrieve = new Reddit(config.getRedditUsername(), config.getRedditPassword(),
                 config.getRedditClientId(), config.getRedditClientSecret());
 
@@ -41,7 +48,7 @@ public class ContentRetrieve {
         }
     }
 
-    public static void setTags() {
+    public void setTags() {
         ArrayList<Account> accounts = connection.grabAllAccounts();
         for(Account account : accounts) {
             tags.add(connection.getTags(account.getId()));

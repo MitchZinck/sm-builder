@@ -1,6 +1,7 @@
-package com.mzinck.smbuilder.Account;
+package com.mzinck.smbuilder.account;
 
 /**
+ * Class that holds important account info.
  * @author Mitchell Zinck Copyright (2017)
  * @version 1.0
  * @see <a href="github.com/mitchzinck">Github</a>
@@ -19,13 +20,13 @@ public class Account {
 
     /**
      * Constructor for setting account data.
-     * @param id
-     * @param username
-     * @param displayName
-     * @param password
-     * @param bio
-     * @param email
-     * @param tag
+     * @param id the account id
+     * @param username the account username
+     * @param displayName the account display name
+     * @param password the account password
+     * @param bio the account bio
+     * @param email the account email
+     * @param tag the tag (theme) associated with the accounts content.
      */
     public Account(long id, String username, String displayName, String password,
                     String bio, String profilePic, String email, String tag) {
