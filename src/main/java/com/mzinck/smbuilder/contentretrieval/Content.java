@@ -11,7 +11,6 @@ public class Content {
 
     private String postTitle;
     private String url;
-    private String URL;
     private String subreddit;
     private int points; //upvotes/retweets/retags
 

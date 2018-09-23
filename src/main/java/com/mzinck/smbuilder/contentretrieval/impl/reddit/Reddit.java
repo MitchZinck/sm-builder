@@ -64,17 +64,17 @@ public class Reddit implements ContentRetrieveHandler {
         for(String subreddit : tag.getTags()) {
             DefaultPaginator<Submission> paginator = reddit.subreddit(subreddit)
                     .posts()
-                    .limit(10/tag.getTags().length)
+                    .limit(10/tag.getTags().size())
                     .sorting(SubredditSort.TOP)
-                    .timePeriod(TimePeriod.WEEK)
+                    .timePeriod(TimePeriod.DAY)
                     .build();
             // Request the first page
             Listing<Submission> firstPage = paginator.next();
             for (Submission post : firstPage) {
                 if ((post.getDomain().contains("imgur.com") || post.getDomain().contains("i.redd.it") ||
                         post.getDomain().contains("i.redditmedia.com")) && !post.getUrl().contains(".gif") && !post.getUrl().contains(".gifv")) {
-                    System.out.println(String.format("%s (/r/%s, %s points) - %s",
-                            post.getTitle(), post.getSubreddit(), post.getScore(), post.getUrl()));
+                   // System.out.println(String.format("%s (/r/%s, %s points) - %s",
+                         //   post.getTitle(), post.getSubreddit(), post.getScore(), post.getUrl()));
                     Content c = new Content();
                     c.setPoints(post.getScore());
                     c.setPostTitle(post.getTitle());

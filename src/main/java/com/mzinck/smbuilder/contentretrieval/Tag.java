@@ -36,7 +36,7 @@ public class Tag {
         return tag;
     }
 
-    public String[] getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 

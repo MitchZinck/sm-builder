@@ -16,19 +16,35 @@ import java.util.ArrayList;
 
 public class ContentRetrieve {
 
+    public static ArrayList<Tag> tags;
+    public static Config config;
+    public static Database connection;
+
     public static void main(String[] args) {
-        Config config = new Config();
+        tags = new ArrayList<Tag>();
+        config = new Config();
         config.setConfig();
-        /*ContentRetrieveHandler retrieve = new Reddit(config.getRedditUsername(), config.getRedditPassword(),
-                config.getRedditClientId(), config.getRedditClientSecret());
-        Tag tag = new Tag("WallStreetBets", "Aww", "Funny");
-        retrieve.setTag(tag);
-        retrieve.getContent();*/
-        Database connection = new Database(config.getSqlURL(), config.getSqlUser(), config.getSqlPassword());
+        connection = new Database(config.getSqlURL(), config.getSqlUser(), config.getSqlPassword());
         connection.connect();
+        setTags();
+
+        ContentRetrieveHandler retrieve = new Reddit(config.getRedditUsername(), config.getRedditPassword(),
+                config.getRedditClientId(), config.getRedditClientSecret());
+
+        for(Tag tag : tags) {
+            retrieve.setTag(tag);
+            ArrayList<Content> content = retrieve.getContent();
+            for(Content c : content) {
+                connection.storeContent(c);
+                System.out.println(c.getPostTitle() + " | " + c.getSubreddit() + " | " + c.getUrl());
+            }
+        }
+    }
+
+    public static void setTags() {
         ArrayList<Account> accounts = connection.grabAllAccounts();
         for(Account account : accounts) {
-            Tag tag = connection.getTags(account.getId());
+            tags.add(connection.getTags(account.getId()));
         }
     }
 

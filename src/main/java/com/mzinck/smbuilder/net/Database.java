@@ -1,6 +1,7 @@
 package com.mzinck.smbuilder.net;
 
 import com.mzinck.smbuilder.Account.Account;
+import com.mzinck.smbuilder.contentretrieval.Content;
 import com.mzinck.smbuilder.contentretrieval.Tag;
 
 import java.sql.*;
@@ -126,6 +127,25 @@ public class Database {
         }
 
         return new Tag(tags);
+    }
+
+    public void storeContent(Content content) {
+        try {
+            if (connection.isClosed()) {
+                connection = DriverManager.getConnection(url, user, password);
+            }
+
+            statement = connection.prepareStatement(
+                    "INSERT INTO smbuilder.CONTENT(post_title, content_url, content_subreddit, points, posted) VALUES(?, ?, ?, ?, ?)");
+            statement.setString(1, content.getPostTitle());
+            statement.setString(2, content.getUrl());
+            statement.setString(3, content.getSubreddit());
+            statement.setLong(4, content.getPoints());
+            statement.setLong(5, 0);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void closeConnection() {
