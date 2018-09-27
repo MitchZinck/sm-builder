@@ -17,6 +17,7 @@ public class Account {
     private String profilePic;
     private String email;
     private String tag;
+    private String platform;
 
     /**
      * Constructor for setting account data.
@@ -27,9 +28,10 @@ public class Account {
      * @param bio the account bio
      * @param email the account email
      * @param tag the tag (theme) associated with the accounts content.
+     * @param platform the social media platform the account is associated with.
      */
     public Account(long id, String username, String displayName, String password,
-                    String bio, String profilePic, String email, String tag) {
+                    String bio, String profilePic, String email, String tag, String platform) {
         this.id = id;
         this.username = username;
         this.displayName = displayName;
@@ -39,6 +41,11 @@ public class Account {
         this.email = email;
         this.tag = tag;
     }
+
+    /**
+     * Empty Constructor.
+     */
+    public Account() {}
 
     public long getId() {
         return id;
@@ -71,4 +78,6 @@ public class Account {
     public String getTag() {
         return tag;
     }
+
+    public String getPlatform() { return platform; }
 }

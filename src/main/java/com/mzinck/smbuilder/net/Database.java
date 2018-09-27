@@ -90,7 +90,7 @@ public class Database {
                 accounts.add(new Account(resultSet.getLong("id"), resultSet.getString("username"),
                         resultSet.getString("displayname"), resultSet.getString("password"),
                         resultSet.getString("bio"), resultSet.getString("profilepic"),
-                        resultSet.getString("email"), resultSet.getString("tag")));
+                        resultSet.getString("email"), resultSet.getString("tag"), resultSet.getString("platform")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
