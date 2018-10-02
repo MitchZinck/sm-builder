@@ -1,6 +1,7 @@
 package com.mzinck.smbuilder.net;
 
 import com.mzinck.smbuilder.account.Account;
+import com.mzinck.smbuilder.account.platform.Instagram;
 import com.mzinck.smbuilder.contentretrieval.Content;
 import com.mzinck.smbuilder.contentretrieval.Tag;
 
@@ -87,10 +88,13 @@ public class Database {
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                accounts.add(new Account(resultSet.getLong("id"), resultSet.getString("username"),
-                        resultSet.getString("displayname"), resultSet.getString("password"),
-                        resultSet.getString("bio"), resultSet.getString("profilepic"),
-                        resultSet.getString("email"), resultSet.getString("tag"), resultSet.getString("platform")));
+                String platform = resultSet.getString("platform");
+                if(platform.equalsIgnoreCase("instagram")) {
+                    accounts.add(new Instagram(resultSet.getLong("id"), resultSet.getString("username"),
+                            resultSet.getString("displayname"), resultSet.getString("password"),
+                            resultSet.getString("bio"), resultSet.getString("profilepic"),
+                            resultSet.getString("email"), resultSet.getString("tag"), platform));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -99,6 +103,37 @@ public class Database {
         }
 
         return accounts;
+    }
+
+    /**
+     * Grabs all active accounts from the database.
+     * @return an arraylist of accounts.
+     */
+    public Account grabTestAccount() {
+        Account account = null;
+        try {
+            if (connection.isClosed()) {
+                connection = DriverManager.getConnection(url, user, password);
+            }
+
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.accounts WHERE id = ?");
+            statement.setInt(1, 1);
+            resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+                System.out.println(resultSet.toString());
+                account = new Instagram(resultSet.getLong("id"), resultSet.getString("username"),
+                        resultSet.getString("displayname"), resultSet.getString("password"),
+                        resultSet.getString("bio"), resultSet.getString("profilepic"),
+                        resultSet.getString("email"), resultSet.getString("tag"), resultSet.getString("platform"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return account;
     }
 
     /**

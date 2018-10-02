@@ -72,7 +72,7 @@ public class Reddit implements ContentRetrieveHandler {
             Listing<Submission> firstPage = paginator.next();
             for (Submission post : firstPage) {
                 if ((post.getDomain().contains("imgur.com") || post.getDomain().contains("i.redd.it") ||
-                        post.getDomain().contains("i.redditmedia.com")) && !post.getUrl().contains(".gif") && !post.getUrl().contains(".gifv")) {
+                        post.getDomain().contains("i.redditmedia.com"))) {
                    // System.out.println(String.format("%s (/r/%s, %s points) - %s",
                          //   post.getTitle(), post.getSubreddit(), post.getScore(), post.getUrl()));
                     Content c = new Content();
