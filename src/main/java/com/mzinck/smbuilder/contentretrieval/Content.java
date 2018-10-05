@@ -9,46 +9,37 @@ package com.mzinck.smbuilder.contentretrieval;
 
 public class Content {
 
+    private long id;
     private String postTitle;
     private String url;
     private String subreddit;
-    private int points; //upvotes/retweets/retags
+    private long points; //upvotes/retweets/retags
 
     /**
      * Empty Constructor.
      */
-    public Content(){};
+    public Content(long id, String postTitle, String url, String subreddit, long points){
+        this.id = id;
+        this.postTitle = postTitle;
+        this.url = url;
+        this.subreddit = subreddit;
+        this.points = points;
+    };
 
     public String getPostTitle() {
         return postTitle;
-    }
-
-    public void setPostTitle(String postTitle) {
-        this.postTitle = postTitle;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public int getPoints() {
+    public long getPoints() {
         return points;
-    }
-
-    public void setPoints(int points) {
-        this.points = points;
     }
 
     public String getSubreddit() {
         return subreddit;
-    }
-
-    public void setSubreddit(String subreddit) {
-        this.subreddit = subreddit;
     }
 
 }

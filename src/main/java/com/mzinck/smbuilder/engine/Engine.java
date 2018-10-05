@@ -3,11 +3,26 @@ package com.mzinck.smbuilder.engine;
 import com.mzinck.smbuilder.account.Account;
 import com.mzinck.smbuilder.account.platform.Instagram;
 import com.mzinck.smbuilder.config.Config;
+import com.mzinck.smbuilder.contentretrieval.Content;
 import com.mzinck.smbuilder.contentretrieval.ContentRetrieve;
+import com.mzinck.smbuilder.contentretrieval.ContentRetrieveHandler;
+import com.mzinck.smbuilder.contentretrieval.impl.reddit.Reddit;
 import com.mzinck.smbuilder.net.Database;
+import org.apache.commons.io.FileUtils;
+import org.brunocvcunha.instagram4j.requests.InstagramGetRecentActivityRequest;
+import org.brunocvcunha.inutils4j.MyImageUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+//TO-DO
+//- Auto posting
+//- Posting with tags
+//- Follow 5 users per day
+
 
 /**
  * The brain of the program.
@@ -42,8 +57,40 @@ public class Engine {
             } else if(command.contains("follow")) {
                 String username = command.split(" ")[1];
                 ((Instagram) testAccount).follow(username);
-            } else if(command.contains("post")) {
-
+            } else if(command.equalsIgnoreCase("post")) {
+                ArrayList<Content> content = connection.grabTodaysContent();
+                Content c = content.get(0);
+                try {
+                    FileUtils.copyURLToFile(new URL(c.getUrl()), new File("C:\\Users\\Mitchell\\Desktop\\memes\\" + c.getPostTitle()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ((Instagram) testAccount).post(content.get(0), testAccount.getTag());
+            } else if(command.contains("closedb")) {
+                connection.closeConnection();
+            } else if(command.contains("poststory")) {
+                ContentRetrieveHandler retrieve = new Reddit(config.getRedditUsername(), config.getRedditPassword(),
+                        config.getRedditClientId(), config.getRedditClientSecret());
+                retrieve.setTag(testAccount.getTag());
+                Content story = ((Reddit) retrieve).getStory();
+                if(story == null) {
+                    return;
+                }
+                try {
+                    FileUtils.copyURLToFile(new URL(story.getUrl()), new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + story.getPostTitle()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ((Instagram) testAccount).postStory(story);
+            } else if(command.equalsIgnoreCase("postvideo")) {
+                ArrayList<Content> content = connection.grabTodaysContent();
+                Content c = content.get(0);
+                try {
+                    FileUtils.copyURLToFile(new URL(c.getUrl()), new File("C:\\Users\\Mitchell\\Desktop\\memes\\" + c.getPostTitle()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ((Instagram) testAccount).postVideo(content.get(0), testAccount.getTag());
             }
         }
     }

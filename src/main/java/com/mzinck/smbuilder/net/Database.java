@@ -93,9 +93,14 @@ public class Database {
                     accounts.add(new Instagram(resultSet.getLong("id"), resultSet.getString("username"),
                             resultSet.getString("displayname"), resultSet.getString("password"),
                             resultSet.getString("bio"), resultSet.getString("profilepic"),
-                            resultSet.getString("email"), resultSet.getString("tag"), platform));
+                            resultSet.getString("email"), null, platform));
                 }
             }
+            resultSet.close();
+            for(Account a : accounts) {
+                a.setTag(getTag(a.getId()));
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -108,6 +113,36 @@ public class Database {
     /**
      * Grabs all active accounts from the database.
      * @return an arraylist of accounts.
+     */
+    public ArrayList<Content> grabTodaysContent() {
+        ArrayList<Content> content = new ArrayList<Content>();
+        try {
+            if (connection.isClosed()) {
+                connection = DriverManager.getConnection(url, user, password);
+            }
+
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.content WHERE `posted` = ?");
+            statement.setBoolean(1, false);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                content.add(new Content(resultSet.getLong("id"), resultSet.getString("post_title"),
+                        resultSet.getString("content_url"), resultSet.getString("content_subreddit"),
+                        resultSet.getLong("points")));
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return content;
+    }
+
+    /**
+     * Grabs a test account from the database.
+     * @return a test account.
      */
     public Account grabTestAccount() {
         Account account = null;
@@ -124,9 +159,11 @@ public class Database {
                 account = new Instagram(resultSet.getLong("id"), resultSet.getString("username"),
                         resultSet.getString("displayname"), resultSet.getString("password"),
                         resultSet.getString("bio"), resultSet.getString("profilepic"),
-                        resultSet.getString("email"), resultSet.getString("tag"), resultSet.getString("platform"));
+                        resultSet.getString("email"), null, resultSet.getString("platform"));
             }
+            resultSet.close();
 
+            account.setTag(getTag(account.getId()));
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -137,10 +174,10 @@ public class Database {
     }
 
     /**
-     * Grabs all active accounts from the database.
-     * @return an arraylist of accounts.
+     * Grabs tags for specific account.
+     * @return a @Tag.
      */
-    public Tag getTags(long id) {
+    public Tag getTag(long id) {
         ArrayList<String> tags = null;
         try {
             if (connection.isClosed()) {

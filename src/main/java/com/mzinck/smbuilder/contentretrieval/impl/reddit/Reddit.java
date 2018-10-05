@@ -72,20 +72,46 @@ public class Reddit implements ContentRetrieveHandler {
             Listing<Submission> firstPage = paginator.next();
             for (Submission post : firstPage) {
                 if ((post.getDomain().contains("imgur.com") || post.getDomain().contains("i.redd.it") ||
-                        post.getDomain().contains("i.redditmedia.com"))) {
+                        post.getDomain().contains("i.redditmedia.com")) && (post.getUrl().contains(".jpg") ||
+                        post.getUrl().contains(".gif") || post.getUrl().contains(".png") || post.getUrl().contains(".webm"))) {
                    // System.out.println(String.format("%s (/r/%s, %s points) - %s",
                          //   post.getTitle(), post.getSubreddit(), post.getScore(), post.getUrl()));
-                    Content c = new Content();
-                    c.setPoints(post.getScore());
-                    c.setPostTitle(post.getTitle());
-                    c.setUrl(post.getUrl());
-                    c.setSubreddit(post.getSubreddit());
+                    Content c = new Content(0, post.getTitle(), post.getUrl(), post.getSubreddit(), post.getScore());
                     content.add(c);
                 }
             }
         }
 
         return content;
+    }
+
+    public Content getStory() {
+        UserAgent userAgent = new UserAgent("SMBuilder", "com.mzinck.smbuilder", "v0.1", username);
+        Credentials credentials = Credentials.script(username, password, clientId, clientSecret); //clientid client secret
+        NetworkAdapter adapter = new OkHttpNetworkAdapter(userAgent);
+        RedditClient reddit = OAuthHelper.automatic(adapter, credentials);
+
+        ArrayList<Content> content = new ArrayList<Content>();
+        for (String subreddit : tag.getTags()) {
+            DefaultPaginator<Submission> paginator = reddit.subreddit(subreddit)
+                    .posts()
+                    .limit(10)
+                    .sorting(SubredditSort.TOP)
+                    .timePeriod(TimePeriod.HOUR)
+                    .build();
+            // Request the first page
+            Listing<Submission> firstPage = paginator.next();
+            for (Submission post : firstPage) {
+                if ((post.getDomain().contains("imgur.com") || post.getDomain().contains("i.redd.it") ||
+                        post.getDomain().contains("i.redditmedia.com")) && (post.getUrl().contains(".jpg") || post.getUrl().contains(".png"))) {
+                    // System.out.println(String.format("%s (/r/%s, %s points) - %s",
+                    //   post.getTitle(), post.getSubreddit(), post.getScore(), post.getUrl()));
+                    Content c = new Content(0, post.getTitle(), post.getUrl(), post.getSubreddit(), post.getScore());
+                    return c;
+                }
+            }
+        }
+        return null;
     }
 
     /**

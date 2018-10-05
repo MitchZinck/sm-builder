@@ -1,5 +1,7 @@
 package com.mzinck.smbuilder.account;
 
+import com.mzinck.smbuilder.contentretrieval.Tag;
+
 /**
  * Class that holds important account info.
  * @author Mitchell Zinck Copyright (2017)
@@ -16,7 +18,7 @@ public class Account {
     private String bio;
     private String profilePic;
     private String email;
-    private String tag;
+    private Tag tag;
     private String platform;
 
     /**
@@ -31,7 +33,7 @@ public class Account {
      * @param platform the social media platform the account is associated with.
      */
     public Account(long id, String username, String displayName, String password,
-                    String bio, String profilePic, String email, String tag, String platform) {
+                    String bio, String profilePic, String email, Tag tag, String platform) {
         this.id = id;
         this.username = username;
         this.displayName = displayName;
@@ -75,9 +77,13 @@ public class Account {
         return email;
     }
 
-    public String getTag() {
+    public Tag getTag() {
         return tag;
     }
 
     public String getPlatform() { return platform; }
+
+    public void setTag(Tag tag) {
+        this.tag = tag;
+    }
 }
