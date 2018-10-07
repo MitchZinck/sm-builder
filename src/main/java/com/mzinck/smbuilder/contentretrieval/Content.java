@@ -23,7 +23,9 @@ public class Content {
     private String postTitleAsMD5;
 
     /**
-     * Empty Constructor.
+     * Sets content information and then hashes the title for storage.
+     * The reason for hashing the title is because when storing content locally you
+     * may have an emoji or characters in the title that breaks saving the content.
      */
     public Content(long id, String postTitle, String url, String subreddit, boolean posted, long points){
         this.id = id;

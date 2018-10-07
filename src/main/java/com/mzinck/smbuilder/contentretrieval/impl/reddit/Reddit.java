@@ -85,6 +85,9 @@ public class Reddit implements ContentRetrieveHandler {
         return content;
     }
 
+    /**
+     * Gets a recent Reddit post to then post to an instagram story.
+     */
     public Content getStory() {
         UserAgent userAgent = new UserAgent("SMBuilder", "com.mzinck.smbuilder", "v0.1", username);
         Credentials credentials = Credentials.script(username, password, clientId, clientSecret); //clientid client secret

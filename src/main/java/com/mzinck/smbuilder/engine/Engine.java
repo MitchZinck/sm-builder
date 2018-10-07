@@ -14,17 +14,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-//TO-DO
-//- Auto posting
-//- Posting with tags
-//- Follow 5 users per day
 
 
 /**
@@ -45,6 +39,10 @@ public class Engine {
 
     public final static boolean PRODUCTION = true;
 
+    /**
+     * Every 24 hours retrieve content from Reddit that is associated with all active Instagram Accounts.
+     * Every 2 hours post new content to all accounts.
+     */
     public static void main(String[] args) {
         config = new Config();
         config.setConfig();
@@ -78,7 +76,7 @@ public class Engine {
     }
 
     /**
-     * Sets a daily routine of retrieving and storing content for future posting.
+     * Initiates and retrieves content.
      */
     public static void doContentRetrieve() {
         contentRetrieve.initiate();
@@ -174,7 +172,7 @@ public class Engine {
             return;
         }
 
-        if(image.getHeight() > image.getWidth()) {
+        if(image.getHeight() > image.getWidth()) { //image is too tall
             if(ar <= 0.8) {
                 double whitespace = (double)image.getHeight() * 0.82;//max portrait ratio
                 BufferedImage newImage = new BufferedImage((int)whitespace, image.getHeight(), image.getType());
@@ -199,7 +197,7 @@ public class Engine {
                     e.printStackTrace();
                 }
             }
-        } else {
+        } else { //image is too wide
             if(ar >= 1.91) {
                 double whitespace = (double)image.getWidth() / 1.89; //max landscape aspect ratio
                 BufferedImage newImage = new BufferedImage(image.getWidth(), (int)whitespace, image.getType());
@@ -227,10 +225,9 @@ public class Engine {
         }
     }
 
-    public static void loginTestAccInstagram() {
-        ((Instagram)testAccount).login();
-    }
-
+    /**
+     * Set of commands for testing specific functions.
+     */
     public static void testing() {
         Scanner scan = new Scanner(System.in);
         while(scan.hasNext()) {

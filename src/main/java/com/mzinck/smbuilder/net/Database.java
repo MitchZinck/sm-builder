@@ -53,7 +53,7 @@ public class Database {
     }
 
     /**
-     * @return a list of active social media accounts.
+     * @return a list of ids representing active social media accounts.
      */
     public Long[] grabAllAccountIds() {
         checkIfClosedAndRestart();
@@ -165,8 +165,8 @@ public class Database {
     }
 
     /**
-     * Grabs all non posted content from specific subreddits.
-     * @return an arraylist of Content.
+     * Grabs next non-posted {@Content} from the database.
+     * @return a {@Content} object.
      */
     public Content grabNextPost(String... subreddits) {
         Content content = null;
@@ -201,9 +201,9 @@ public class Database {
     }
 
     /**
-     * Updates the posted value of the specified content.
+     * Updates whether a piece of content was posted or not.
      * @param id the id of the content.
-     * @param posted the boolean value specifying if content has been posted.
+     * @param posted true if posted.
      */
     public void setContentPosted(long id, boolean posted) {
         try {
@@ -220,7 +220,7 @@ public class Database {
     }
 
     /**
-     * Grabs a test account from the database.
+     * Grabs a test {@Account} from the database.
      * @return a test account.
      */
     public Account grabTestAccount() {
@@ -250,7 +250,7 @@ public class Database {
     }
 
     /**
-     * Grabs tags for specific account.
+     * Grabs a {@link Tag} related to an {@Account}.
      * @return a @Tag.
      */
     public Tag getTag(long id) {

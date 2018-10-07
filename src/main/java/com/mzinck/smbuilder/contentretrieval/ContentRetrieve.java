@@ -55,6 +55,9 @@ public class ContentRetrieve {
         }
     }
 
+    /**
+     * Gets content for Instagram story posting.
+     */
     public Content retrieveStoryContent(Account account) {
         ContentRetrieveHandler retrieve = new Reddit(config.getRedditUsername(), config.getRedditPassword(),
                 config.getRedditClientId(), config.getRedditClientSecret());
@@ -73,7 +76,7 @@ public class ContentRetrieve {
     }
 
     /**
-     * Sets the tags (content type) that needs to be retrieved.
+     * Sets the tags. This is to understand what subject of content we are retrieving.
      */
     public void setTags() {
         Long[] ids = connection.grabAllAccountIds();

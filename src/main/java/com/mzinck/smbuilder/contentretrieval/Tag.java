@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 /**
  * Represents a tag or set of tags related to content retrieval.
+ * Tags can represent subreddits or hashtags to find content from.
+ * Caption tags are hashtags to post with the content.
+ *
  * @author Mitchell Zinck Copyright (2018)
  * @version 1.0
  * @see <a href="github.com/mitchzinck">Github</a>
