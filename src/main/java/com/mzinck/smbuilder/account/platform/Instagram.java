@@ -62,7 +62,7 @@ public class Instagram extends Account {
 
         try {
             instagram.sendRequest(new InstagramUploadPhotoRequest(
-                    new File("C:\\Users\\Mitchell\\Desktop\\memes\\" + content.getPostTitle()),
+                    new File("C:\\Users\\Mitchell\\Desktop\\memes\\" + content.getPostTitleAsMD5()),
                     content.getPostTitle() +  "\n" + tagString));
         } catch (IOException e) {
             e.printStackTrace();
@@ -79,9 +79,11 @@ public class Instagram extends Account {
 //        ((ArrayList<StoryMetadata>) meta).add(hashtag);
         try {
             instagram.sendRequest(new InstagramUploadStoryPhotoRequest(
-                    new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + content.getPostTitle())));
+                    new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + content.getPostTitleAsMD5())));
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException e){
+            System.out.println("Couldn't upload story " + "C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + content.getPostTitle());
         }
     }
 
@@ -94,13 +96,15 @@ public class Instagram extends Account {
         for(String t : tag.getCaptionTags()) {
             tagString += "#" + t + " ";
         }
-        File file = new File("C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + content.getPostTitle());
+        File file = new File("C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + content.getPostTitleAsMD5());
 
         try {
             instagram.sendRequest(new InstagramUploadVideoRequest(file,
                     content.getPostTitle() +  "\n" + tagString));
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException e){
+            System.out.println("Couldn't upload story " + "C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + content.getPostTitle());
         }
     }
 

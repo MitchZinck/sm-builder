@@ -64,7 +64,7 @@ public class ContentRetrieve {
             return null;
         }
         try {
-            FileUtils.copyURLToFile(new URL(story.getUrl()), new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + story.getPostTitle()));
+            FileUtils.copyURLToFile(new URL(story.getUrl()), new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + story.getPostTitleAsMD5()));
         } catch (IOException e) {
             e.printStackTrace();
         }
