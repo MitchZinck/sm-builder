@@ -1,9 +1,14 @@
 package com.mzinck.smbuilder.contentretrieval;
 
+import com.mzinck.smbuilder.account.Account;
 import com.mzinck.smbuilder.config.Config;
 import com.mzinck.smbuilder.contentretrieval.impl.reddit.Reddit;
 import com.mzinck.smbuilder.net.Database;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -48,6 +53,23 @@ public class ContentRetrieve {
                 //System.out.println(c.getPostTitle() + " | " + c.getSubreddit() + " | " + c.getUrl());
             }
         }
+    }
+
+    public Content retrieveStoryContent(Account account) {
+        ContentRetrieveHandler retrieve = new Reddit(config.getRedditUsername(), config.getRedditPassword(),
+                config.getRedditClientId(), config.getRedditClientSecret());
+        retrieve.setTag(account.getTag());
+        Content story = ((Reddit) retrieve).getStory();
+        if(story == null) {
+            return null;
+        }
+        try {
+            FileUtils.copyURLToFile(new URL(story.getUrl()), new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + story.getPostTitle()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return story;
     }
 
     /**

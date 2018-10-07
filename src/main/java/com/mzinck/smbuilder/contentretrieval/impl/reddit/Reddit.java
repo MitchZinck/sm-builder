@@ -73,10 +73,10 @@ public class Reddit implements ContentRetrieveHandler {
             for (Submission post : firstPage) {
                 if ((post.getDomain().contains("imgur.com") || post.getDomain().contains("i.redd.it") ||
                         post.getDomain().contains("i.redditmedia.com")) && (post.getUrl().contains(".jpg") ||
-                        post.getUrl().contains(".gif") || post.getUrl().contains(".png") || post.getUrl().contains(".webm"))) {
+                        post.getUrl().contains(".gif") || post.getUrl().contains(".png") || post.getUrl().contains(".webm") || post.getUrl().contains("v.reddit"))) {
                    // System.out.println(String.format("%s (/r/%s, %s points) - %s",
-                         //   post.getTitle(), post.getSubreddit(), post.getScore(), post.getUrl()));
-                    Content c = new Content(0, post.getTitle(), post.getUrl(), post.getSubreddit(), post.getScore());
+                         //   postPicture.getTitle(), postPicture.getSubreddit(), postPicture.getScore(), postPicture.getUrl()));
+                    Content c = new Content(0, post.getTitle(), post.getUrl(), post.getSubreddit(), false, post.getScore());
                     content.add(c);
                 }
             }
@@ -105,8 +105,8 @@ public class Reddit implements ContentRetrieveHandler {
                 if ((post.getDomain().contains("imgur.com") || post.getDomain().contains("i.redd.it") ||
                         post.getDomain().contains("i.redditmedia.com")) && (post.getUrl().contains(".jpg") || post.getUrl().contains(".png"))) {
                     // System.out.println(String.format("%s (/r/%s, %s points) - %s",
-                    //   post.getTitle(), post.getSubreddit(), post.getScore(), post.getUrl()));
-                    Content c = new Content(0, post.getTitle(), post.getUrl(), post.getSubreddit(), post.getScore());
+                    //   postPicture.getTitle(), postPicture.getSubreddit(), postPicture.getScore(), postPicture.getUrl()));
+                    Content c = new Content(0, post.getTitle(), post.getUrl(), post.getSubreddit(), false, post.getScore());
                     return c;
                 }
             }

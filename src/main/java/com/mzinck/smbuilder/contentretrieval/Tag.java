@@ -22,11 +22,17 @@ public class Tag {
     private ArrayList<String> tags;
 
     /**
+     * The tags that are to be posted with the caption.
+     */
+    private ArrayList<String> captionTags;
+
+    /**
      * Constructor
      * @param tags The tag that is needed to retrieve a specific type of content.
      */
-    public Tag(ArrayList<String> tags) {
+    public Tag(ArrayList<String> tags, ArrayList<String> captionTags) {
         this.tags = tags;
+        this.captionTags = captionTags;
     }
 
     /**
@@ -40,4 +46,5 @@ public class Tag {
         return tags;
     }
 
+    public ArrayList<String> getCaptionTags() { return captionTags; }
 }

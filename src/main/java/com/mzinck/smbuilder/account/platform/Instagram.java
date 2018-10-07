@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 /**
  * Functionality for the Instagram platform.
@@ -51,30 +50,36 @@ public class Instagram extends Account {
         super(id, username, displayName, password, bio, profilePic, email, tag, platform);
     }
 
-    public void post(Content content, Tag tag) {
+    public void postPicture(Content content, Tag tag) {
         String tagString = "";
         for(String t : tag.getTags()) {
             tagString += "#" + t + " ";
         }
+
+        for(String t : tag.getCaptionTags()) {
+            tagString += "#" + t + " ";
+        }
+
         try {
             instagram.sendRequest(new InstagramUploadPhotoRequest(
                     new File("C:\\Users\\Mitchell\\Desktop\\memes\\" + content.getPostTitle()),
                     content.getPostTitle() +  "\n" + tagString));
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            System.out.println("Failed to post image due to aspect problems.");
         }
     }
 
     public void postStory(Content content) {
-        Collection<StoryMetadata> meta = new ArrayList<StoryMetadata>();
-        StoryHashtag hashtag = StoryHashtag.builder()
-                .tag_name(content.getSubreddit()) //tag without '#'
-                .build(); //asign x y z rotation for position of tag
-        ((ArrayList<StoryMetadata>) meta).add(hashtag);
+//        Collection<StoryMetadata> meta = new ArrayList<StoryMetadata>();
+//        StoryHashtag hashtag = StoryHashtag.builder()
+//                .tag_name(content.getSubreddit()) //tag without '#'
+//                .build(); //asign x y z rotation for position of tag
+//        ((ArrayList<StoryMetadata>) meta).add(hashtag);
         try {
             instagram.sendRequest(new InstagramUploadStoryPhotoRequest(
-                    new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + content.getPostTitle()),
-                    meta));
+                    new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + content.getPostTitle())));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,13 +90,22 @@ public class Instagram extends Account {
         for(String t : tag.getTags()) {
             tagString += "#" + t + " ";
         }
+
+        for(String t : tag.getCaptionTags()) {
+            tagString += "#" + t + " ";
+        }
+        File file = new File("C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + content.getPostTitle());
+
         try {
-            instagram.sendRequest(new InstagramUploadVideoRequest(
-                    new File("C:\\Users\\Mitchell\\Desktop\\memes\\" + content.getPostTitle()),
+            instagram.sendRequest(new InstagramUploadVideoRequest(file,
                     content.getPostTitle() +  "\n" + tagString));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void logout() {
+        instagram.getClient().close();
     }
 
 }

@@ -4,7 +4,11 @@ import com.mzinck.smbuilder.account.Account;
 import com.mzinck.smbuilder.account.platform.Instagram;
 import com.mzinck.smbuilder.contentretrieval.Content;
 import com.mzinck.smbuilder.contentretrieval.Tag;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -52,9 +56,11 @@ public class Database {
      * @return a list of active social media accounts.
      */
     public Long[] grabAllAccountIds() {
+        checkIfClosedAndRestart();
         ArrayList<Long> ids = new ArrayList<Long>();
         try {
             if (connection.isClosed()) {
+                Class.forName("com.mysql.jdbc.Driver");
                 connection = DriverManager.getConnection(url, user, password);
             }
 
@@ -66,6 +72,8 @@ public class Database {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         } finally {
             closeConnection();
         }
@@ -73,17 +81,27 @@ public class Database {
         return ids.toArray(new Long[0]);
     }
 
+    public void checkIfClosedAndRestart() {
+        try {
+            if (connection.isClosed()) {
+                Class.forName("com.mysql.jdbc.Driver");
+                connection = DriverManager.getConnection(url, user, password);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Grabs all active accounts from the database.
      * @return an arraylist of accounts.
      */
     public ArrayList<Account> grabAllAccounts() {
+        checkIfClosedAndRestart();
         ArrayList<Account> accounts = new ArrayList<Account>();
         try {
-            if (connection.isClosed()) {
-                connection = DriverManager.getConnection(url, user, password);
-            }
-
             statement = connection.prepareStatement("SELECT * FROM smbuilder.accounts");
             resultSet = statement.executeQuery();
 
@@ -111,24 +129,30 @@ public class Database {
     }
 
     /**
-     * Grabs all active accounts from the database.
-     * @return an arraylist of accounts.
+     * Grabs all non posted content from specific subreddits.
+     * @return an arraylist of Content.
      */
-    public ArrayList<Content> grabTodaysContent() {
+    public ArrayList<Content> grabAllTodaysContent(String... subreddits) {
         ArrayList<Content> content = new ArrayList<Content>();
         try {
-            if (connection.isClosed()) {
-                connection = DriverManager.getConnection(url, user, password);
-            }
+            checkIfClosedAndRestart();
 
-            statement = connection.prepareStatement("SELECT * FROM smbuilder.content WHERE `posted` = ?");
+            String extra = "(";
+            for(String s : subreddits) {
+                extra += "'" + s + "',";
+            }
+            extra = extra.substring(0, extra.length() - 1);
+            extra += ")";
+
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.content WHERE `posted` = ? AND" +
+                    " `content_subreddit` in" + extra);
             statement.setBoolean(1, false);
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 content.add(new Content(resultSet.getLong("id"), resultSet.getString("post_title"),
                         resultSet.getString("content_url"), resultSet.getString("content_subreddit"),
-                        resultSet.getLong("points")));
+                        resultSet.getBoolean("posted"), resultSet.getLong("points")));
 
             }
         } catch (SQLException e) {
@@ -141,21 +165,73 @@ public class Database {
     }
 
     /**
+     * Grabs all non posted content from specific subreddits.
+     * @return an arraylist of Content.
+     */
+    public Content grabNextPost(String... subreddits) {
+        Content content = null;
+        try {
+            checkIfClosedAndRestart();
+            String extra = "(";
+            for(String s : subreddits) {
+                extra += "'" + s + "',";
+            }
+            extra = extra.substring(0, extra.length() - 1);
+            extra += ")";
+
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.content WHERE `posted` = ? AND" +
+                    " `content_subreddit` in" + extra + " group by `posted`");
+            statement.setBoolean(1, false);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                content = new Content(resultSet.getLong("id"), resultSet.getString("post_title"),
+                        resultSet.getString("content_url"), resultSet.getString("content_subreddit"),
+                        resultSet.getBoolean("posted"), resultSet.getLong("points"));
+                break;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return content;
+    }
+
+    /**
+     * Updates the posted value of the specified content.
+     * @param id the id of the content.
+     * @param posted the boolean value specifying if content has been posted.
+     */
+    public void setContentPosted(long id, boolean posted) {
+        try {
+            checkIfClosedAndRestart();
+
+            statement = connection.prepareStatement(
+                    "UPDATE smbuilder.content SET posted = ? WHERE id = ?");
+            statement.setBoolean(1, posted);
+            statement.setLong(2, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Grabs a test account from the database.
      * @return a test account.
      */
     public Account grabTestAccount() {
         Account account = null;
         try {
-            if (connection.isClosed()) {
-                connection = DriverManager.getConnection(url, user, password);
-            }
+            checkIfClosedAndRestart();
 
             statement = connection.prepareStatement("SELECT * FROM smbuilder.accounts WHERE id = ?");
             statement.setInt(1, 1);
             resultSet = statement.executeQuery();
             while(resultSet.next()) {
-                System.out.println(resultSet.toString());
                 account = new Instagram(resultSet.getLong("id"), resultSet.getString("username"),
                         resultSet.getString("displayname"), resultSet.getString("password"),
                         resultSet.getString("bio"), resultSet.getString("profilepic"),
@@ -179,10 +255,9 @@ public class Database {
      */
     public Tag getTag(long id) {
         ArrayList<String> tags = null;
+        ArrayList<String> captionTags = null;
         try {
-            if (connection.isClosed()) {
-                connection = DriverManager.getConnection(url, user, password);
-            }
+            checkIfClosedAndRestart();
 
             statement = connection.prepareStatement("SELECT * FROM smbuilder.tags WHERE `tagid` = ?");
             statement.setLong(1, id);
@@ -192,13 +267,22 @@ public class Database {
             while (resultSet.next()) {
                 tags.add(resultSet.getString("tagname"));
             }
+
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.caption_tags WHERE `tagid` = ?");
+            statement.setLong(1, id);
+            resultSet = statement.executeQuery();
+
+            captionTags = new ArrayList<String>();
+            while (resultSet.next()) {
+                captionTags.add(resultSet.getString("tagname"));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             closeConnection();
         }
 
-        return new Tag(tags);
+        return new Tag(tags, captionTags);
     }
 
     /**
@@ -207,9 +291,7 @@ public class Database {
      */
     public void storeContent(Content content) {
         try {
-            if (connection.isClosed()) {
-                connection = DriverManager.getConnection(url, user, password);
-            }
+            checkIfClosedAndRestart();
 
             statement = connection.prepareStatement(
                     "INSERT INTO smbuilder.CONTENT(post_title, content_url, content_subreddit, points, posted) VALUES(?, ?, ?, ?, ?)");
