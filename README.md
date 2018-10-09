@@ -8,12 +8,14 @@ Social media accounts can post content from either a single subreddit or a mixtu
 Finished
 --------
 - Download content and store from reddit (v.redd.it, i.imgur.com, i.redd.it)
-- MySQL storing and retrieving of Instagram accounts
-- Instagram follow, post picture, post story and post video.
+  - Uses youtube-dl and ffmpeg
+- MySQL storing and retrieving of Instagram account info
+- MySQL storage of content
+- Follow user, post picture, post story and post video all supported.
 - Automatic schedule for retrieving content from reddit and posting to Instagram
 - Supports unlimited accounts
 
 Blockage
 --------
-As I finished the first major build of this project I found out that Instagram recently (10/9/2018) came down hard on any form of botting. I did not plan to gain followers or spam, just post content but was still met with bans and phone verification blocks. It seems that this project will have to end here due to the blockage of non-human Instagram accounts. Lots of work was done and it was a fun journey!
+As I finished the first beta build of this project I found out that Instagram recently (10/9/2018) came down hard on any form of botting. I did not plan to gain followers or spam, just post content but was still met with bans and phone verification blocks. It seems that this project will have to end here due to Instagram blocking non-humans. Lots of work was done and it was a fun journey!
 
