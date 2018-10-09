@@ -6,6 +6,10 @@ import com.mzinck.smbuilder.config.Config;
 import com.mzinck.smbuilder.contentretrieval.Content;
 import com.mzinck.smbuilder.contentretrieval.ContentRetrieve;
 import com.mzinck.smbuilder.net.Database;
+import com.sapher.youtubedl.YoutubeDL;
+import com.sapher.youtubedl.YoutubeDLException;
+import com.sapher.youtubedl.YoutubeDLRequest;
+import com.sapher.youtubedl.YoutubeDLResponse;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
@@ -14,6 +18,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -62,7 +69,7 @@ public class Engine {
                 doContentRetrieve();
                 System.out.println("Finished retrieving content @ " + System.currentTimeMillis());
             }
-        }, 0, 24, TimeUnit.HOURS);
+        }, 20, 24, TimeUnit.HOURS);
 
         postingScheduler = Executors.newScheduledThreadPool(1);
         postingScheduler.scheduleAtFixedRate(new Runnable() {
@@ -71,7 +78,7 @@ public class Engine {
                 postContent();
                 System.out.println("Finished posting content @ " + System.currentTimeMillis());
             }
-        }, 1, 2, TimeUnit.HOURS);
+        }, 0, 2, TimeUnit.HOURS);
 
     }
 
@@ -109,17 +116,39 @@ public class Engine {
                     ((Instagram) account).postStory(story);
                 }
                 connection.setContentPosted(content.getId(), true);
-                ((Instagram)account).follow("mitchzinck");
                 ((Instagram)account).logout();
             }
 
             try {
-                Thread.sleep(60000);
+                Thread.sleep(15000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         connection.closeConnection();
+    }
+
+    public static void redditVideoDownload(String filename, String videoUrl) {
+
+        // Destination directory
+        String directory = "C:\\Users\\Mitchell\\Desktop\\memes\\videos";
+
+        // Build request
+        YoutubeDLRequest request = new YoutubeDLRequest(videoUrl, directory);
+        request.setOption("ffmpeg-location \"C:\\Program Files\\nodejs\"");
+        request.setOption("output \"" + filename + ".mp4\"");
+        YoutubeDLResponse response = null;
+        try {
+            response = YoutubeDL.execute(request);
+        } catch (YoutubeDLException e) {
+            e.printStackTrace();
+        }
+        Path source = Paths.get("C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + filename + ".mp4");
+        try {
+            Files.move(source, source.resolveSibling("C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + filename));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -145,6 +174,10 @@ public class Engine {
             return;
         }
 
+        if(content.getUrl().contains("v.redd.it")) {
+            redditVideoDownload(content.getPostTitleAsMD5(), content.getUrl());
+            return;
+        }
         try {
             if(content.getUrl().contains("gifv")) {
                 content.setUrl(content.getUrl().substring(0, content.getUrl().length() - 5) + ".mp4");

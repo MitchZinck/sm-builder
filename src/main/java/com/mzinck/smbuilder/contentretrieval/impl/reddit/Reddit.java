@@ -7,13 +7,11 @@ import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.NetworkAdapter;
 import net.dean.jraw.http.OkHttpNetworkAdapter;
 import net.dean.jraw.http.UserAgent;
-import net.dean.jraw.models.Listing;
-import net.dean.jraw.models.Submission;
-import net.dean.jraw.models.SubredditSort;
-import net.dean.jraw.models.TimePeriod;
+import net.dean.jraw.models.*;
 import net.dean.jraw.oauth.Credentials;
 import net.dean.jraw.oauth.OAuthHelper;
 import net.dean.jraw.pagination.DefaultPaginator;
+import net.dean.jraw.ratelimit.RateLimiter;
 
 import java.util.ArrayList;
 
@@ -64,24 +62,29 @@ public class Reddit implements ContentRetrieveHandler {
         for(String subreddit : tag.getTags()) {
             DefaultPaginator<Submission> paginator = reddit.subreddit(subreddit)
                     .posts()
-                    .limit(10/tag.getTags().size())
+                    .limit(5)//if there are more than 1 subreddit to pull from then pull less per sub
                     .sorting(SubredditSort.TOP)
                     .timePeriod(TimePeriod.DAY)
                     .build();
             // Request the first page
             Listing<Submission> firstPage = paginator.next();
             for (Submission post : firstPage) {
-                if ((post.getDomain().contains("imgur.com") || post.getDomain().contains("i.redd.it") ||
-                        post.getDomain().contains("i.redditmedia.com")) && (post.getUrl().contains(".jpg") ||
-                        post.getUrl().contains(".gif") || post.getUrl().contains(".png") || post.getUrl().contains(".webm") || post.getUrl().contains("v.reddit"))) {
+                if(post.isNsfw()) {
+                    continue;
+                } else if(post.getScore() < 100) {
+                    continue;
+                }
+                if ((post.getDomain().contains("i.imgur.com") || post.getDomain().contains("i.redd.it") ||
+                        post.getDomain().contains("i.redditmedia.com") || post.getDomain().contains("v.redd.it"))
+                        && !post.isSelfPost()) {
                    // System.out.println(String.format("%s (/r/%s, %s points) - %s",
                          //   postPicture.getTitle(), postPicture.getSubreddit(), postPicture.getScore(), postPicture.getUrl()));
-                    Content c = new Content(0, post.getTitle(), post.getUrl(), post.getSubreddit(), false, post.getScore());
+                    String url = post.getUrl();
+                    Content c = new Content(0, post.getTitle(), url, post.getSubreddit(), false, post.getScore());
                     content.add(c);
                 }
             }
         }
-
         return content;
     }
 
@@ -105,6 +108,9 @@ public class Reddit implements ContentRetrieveHandler {
             // Request the first page
             Listing<Submission> firstPage = paginator.next();
             for (Submission post : firstPage) {
+                if(post.isNsfw()) {
+                    continue;
+                }
                 if ((post.getDomain().contains("imgur.com") || post.getDomain().contains("i.redd.it") ||
                         post.getDomain().contains("i.redditmedia.com")) && (post.getUrl().contains(".jpg") || post.getUrl().contains(".png"))) {
                     // System.out.println(String.format("%s (/r/%s, %s points) - %s",
