@@ -62,7 +62,7 @@ public class Reddit implements ContentRetrieveHandler {
         for(String subreddit : tag.getTags()) {
             DefaultPaginator<Submission> paginator = reddit.subreddit(subreddit)
                     .posts()
-                    .limit(5)//if there are more than 1 subreddit to pull from then pull less per sub
+                    .limit(20)//if there are more than 1 subreddit to pull from then pull less per sub
                     .sorting(SubredditSort.TOP)
                     .timePeriod(TimePeriod.DAY)
                     .build();
@@ -71,11 +71,11 @@ public class Reddit implements ContentRetrieveHandler {
             for (Submission post : firstPage) {
                 if(post.isNsfw()) {
                     continue;
-                } else if(post.getScore() < 100) {
+                } else if(post.getScore() < 2500) {
                     continue;
                 }
                 if ((post.getDomain().contains("i.imgur.com") || post.getDomain().contains("i.redd.it") ||
-                        post.getDomain().contains("i.redditmedia.com") || post.getDomain().contains("v.redd.it"))
+                        post.getDomain().contains("i.redditmedia.com") || post.getDomain().contains("v.redd.it") || post.getDomain().contains("thumbs.gfycat.com"))
                         && !post.isSelfPost()) {
                    // System.out.println(String.format("%s (/r/%s, %s points) - %s",
                          //   postPicture.getTitle(), postPicture.getSubreddit(), postPicture.getScore(), postPicture.getUrl()));

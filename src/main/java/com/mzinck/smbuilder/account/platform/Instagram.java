@@ -50,7 +50,7 @@ public class Instagram extends Account {
         super(id, username, displayName, password, bio, profilePic, email, tag, platform);
     }
 
-    public void postPicture(Content content, Tag tag) {
+    public boolean postPicture(Content content, Tag tag) {
         String tagString = "";
         for(String t : tag.getTags()) {
             tagString += "#" + t + " ";
@@ -59,16 +59,20 @@ public class Instagram extends Account {
         for(String t : tag.getCaptionTags()) {
             tagString += "#" + t + " ";
         }
+        File file = new File("C:\\Users\\Mitchell\\Desktop\\memes\\" + content.getPostTitleAsMD5());
 
         try {
             instagram.sendRequest(new InstagramUploadPhotoRequest(
                     new File("C:\\Users\\Mitchell\\Desktop\\memes\\" + content.getPostTitleAsMD5()),
-                    content.getPostTitle() +  "\n" + tagString));
+                    content.getPostTitle() +  "\n-\nFollow @" + super.getUsername() + "\n-\n" + tagString));
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         } catch (IllegalArgumentException e) {
             System.out.println("Failed to post image due to aspect problems.");
+            return false;
         }
+        return true;
     }
 
     public void postStory(Content content) {
@@ -87,7 +91,7 @@ public class Instagram extends Account {
         }
     }
 
-    public void postVideo(Content content, Tag tag) {
+    public boolean postVideo(Content content, Tag tag) {
         String tagString = "";
         for(String t : tag.getTags()) {
             tagString += "#" + t + " ";
@@ -100,12 +104,15 @@ public class Instagram extends Account {
 
         try {
             instagram.sendRequest(new InstagramUploadVideoRequest(file,
-                    content.getPostTitle() +  "\n" + tagString));
+                    content.getPostTitle() +  "\n-\nFollow @" + super.getUsername() + "\n-\n" + tagString));
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         } catch (IllegalArgumentException e){
-            System.out.println("Couldn't upload story " + "C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + content.getPostTitle());
+            System.out.println("Couldn't upload Video " + "C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + content.getPostTitle());
+            return false;
         }
+        return true;
     }
 
     public void logout() {

@@ -64,7 +64,7 @@ public class Database {
                 connection = DriverManager.getConnection(url, user, password);
             }
 
-            statement = connection.prepareStatement("SELECT `id` FROM smbuilder.accounts");
+            statement = connection.prepareStatement("SELECT `id` FROM smbuilder.accounts WHERE `active` = 1");
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -102,7 +102,7 @@ public class Database {
         checkIfClosedAndRestart();
         ArrayList<Account> accounts = new ArrayList<Account>();
         try {
-            statement = connection.prepareStatement("SELECT * FROM smbuilder.accounts");
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.accounts WHERE `active` = 1");
             resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -290,6 +290,9 @@ public class Database {
      * @param content the content to be stored.
      */
     public void storeContent(Content content) {
+        if(checkDuplicatePost(content.getPostTitle())) {
+            return;
+        }
         try {
             checkIfClosedAndRestart();
 
@@ -304,6 +307,26 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean checkDuplicatePost(String title) {
+        try {
+            checkIfClosedAndRestart();
+            statement = connection.prepareStatement("SELECT * FROM smbuilder.content WHERE `post_title` = ?");
+            statement.setString(1, title);
+            resultSet = statement.executeQuery();
+
+            if (!resultSet.isBeforeFirst() ) {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+
+        return true;
     }
 
     public void closeConnection() {

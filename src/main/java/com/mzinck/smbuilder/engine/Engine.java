@@ -14,10 +14,14 @@ import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,7 +73,7 @@ public class Engine {
                 doContentRetrieve();
                 System.out.println("Finished retrieving content @ " + System.currentTimeMillis());
             }
-        }, 20, 24, TimeUnit.HOURS);
+        }, 12, 12, TimeUnit.HOURS); // dont run 2/26
 
         postingScheduler = Executors.newScheduledThreadPool(1);
         postingScheduler.scheduleAtFixedRate(new Runnable() {
@@ -78,7 +82,7 @@ public class Engine {
                 postContent();
                 System.out.println("Finished posting content @ " + System.currentTimeMillis());
             }
-        }, 0, 2, TimeUnit.HOURS);
+        }, 0, 60, TimeUnit.MINUTES);
 
     }
 
@@ -99,36 +103,60 @@ public class Engine {
         contentRetrieve.initiate();
         for(Account account : accounts) {
             if(account instanceof Instagram) {
-                Content content = connection.grabNextPost(account.getTag().getTags().toArray(new String[0]));
-                if(content == null) {
-                    continue;
+                boolean hasPosted = false;
+                while (hasPosted == false) {
+                    boolean isDuplicate = true;
+                    Content content = null;
+                    while (isDuplicate == true) {
+                        content = connection.grabNextPost(account.getTag().getTags().toArray(new String[0]));
+                        if (content == null) {
+                            ((Instagram) account).logout();
+                            connection.closeConnection();
+                            return;
+                        }
+                        if (saveContent(content, false) == false) {
+                            System.out.println("Duplicate Post: \"" + content.getPostTitle() + "\'");
+                            connection.setContentPosted(content.getId(), true);
+                            continue;
+                        }
+                        isDuplicate = false;
+                    }
+                    ((Instagram) account).login();
+                    try {
+                        Thread.sleep(15000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (content.getUrl().contains(".jpg") || content.getUrl().contains(".png")) {
+                        hasPosted = ((Instagram) account).postPicture(content, account.getTag());
+                    } else {
+                        hasPosted =((Instagram) account).postVideo(content, account.getTag());
+                    }
+                    try {
+                        Thread.sleep(15000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Content story = contentRetrieve.retrieveStoryContent(account);
+                    if (story != null) {
+                        saveContent(story, true);
+                        ((Instagram) account).postStory(story);
+                    }
+                    connection.setContentPosted(content.getId(), true);
+                    ((Instagram) account).logout();
                 }
-                saveContent(content, false);
-                ((Instagram)account).login();
-                if(content.getUrl().contains(".jpg") || content.getUrl().contains(".png")) {
-                    ((Instagram)account).postPicture(content, account.getTag());
-                } else {
-                    ((Instagram)account).postVideo(content, account.getTag());
-                }
-                Content story = contentRetrieve.retrieveStoryContent(account);
-                if(story != null) {
-                    saveContent(story, true);
-                    ((Instagram) account).postStory(story);
-                }
-                connection.setContentPosted(content.getId(), true);
-                ((Instagram)account).logout();
-            }
 
-            try {
-                Thread.sleep(15000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                try {
+                    Thread.sleep(15000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         connection.closeConnection();
     }
 
-    public static void redditVideoDownload(String filename, String videoUrl) {
+    public static boolean redditVideoDownload(String filename, String videoUrl) {
 
         // Destination directory
         String directory = "C:\\Users\\Mitchell\\Desktop\\memes\\videos";
@@ -148,21 +176,28 @@ public class Engine {
             Files.move(source, source.resolveSibling("C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + filename));
         } catch (IOException e) {
             e.printStackTrace();
+            if(e instanceof  FileAlreadyExistsException) {
+                return false;
+            }
         }
+        return true;
     }
 
     /**
      * Saves the content locally to be posted.
      */
-    public static void saveContent(Content content, boolean story) {
+    public static boolean saveContent(Content content, boolean story) {
         if(story == true) {
             try {
                 FileUtils.copyURLToFile(new URL(content.getUrl()), new File("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + content.getPostTitleAsMD5()));
                 fixAspectRatio("C:\\Users\\Mitchell\\Desktop\\memes\\stories\\" + content.getPostTitleAsMD5());
             } catch (IOException e) {
                 e.printStackTrace();
+                if(e instanceof  FileAlreadyExistsException) {
+                    return false;
+                }
             }
-            return;
+            return true;
         }
         if(content.getUrl().contains(".jpg") || content.getUrl().contains(".png")) {
             try {
@@ -170,22 +205,39 @@ public class Engine {
                 fixAspectRatio("C:\\Users\\Mitchell\\Desktop\\memes\\" + content.getPostTitleAsMD5());
             } catch (IOException e) {
                 e.printStackTrace();
+                if(e instanceof  FileAlreadyExistsException) {
+                    return false;
+                }
             }
-            return;
+            return true;
         }
 
         if(content.getUrl().contains("v.redd.it")) {
-            redditVideoDownload(content.getPostTitleAsMD5(), content.getUrl());
-            return;
+            if(redditVideoDownload(content.getPostTitleAsMD5(), content.getUrl()) == false) {
+                return false;
+            }
+            return true;
         }
         try {
-            if(content.getUrl().contains("gifv")) {
+            if(content.getUrl().contains("gifv") || content.getUrl().contains("mp4")) {
                 content.setUrl(content.getUrl().substring(0, content.getUrl().length() - 5) + ".mp4");
             }
             FileUtils.copyURLToFile(new URL(content.getUrl()), new File("C:\\Users\\Mitchell\\Desktop\\memes\\videos\\" + content.getPostTitleAsMD5()));
         } catch (IOException e) {
             e.printStackTrace();
+            if(e instanceof  FileAlreadyExistsException) {
+                return false;
+            }
         }
+        return true;
+    }
+
+    public static BufferedImage getSRGBBufferedImage(BufferedImage image) {
+        BufferedImageOp op = new ColorConvertOp(ColorSpace
+                .getInstance(ColorSpace.CS_sRGB), null);
+        BufferedImage sourceImgGray = op.filter(image, null);
+
+        return sourceImgGray;
     }
 
     /**
@@ -216,6 +268,7 @@ public class Engine {
                 g.fillRect(0,0,(int)whitespace,image.getHeight());
                 g.drawImage(image, (((int)whitespace - image.getWidth()) / 2), 0, null);
                 g.dispose();
+                newImage = getSRGBBufferedImage(newImage);
                 File outputfile = new File(filePath);
                 if(!outputfile.exists()) {
                     try {
@@ -242,6 +295,7 @@ public class Engine {
                 g.drawImage(image, 0, (((int)whitespace - image.getHeight()) / 2), null);
                 g.dispose();
                 File outputfile = new File(filePath);
+                newImage = getSRGBBufferedImage(newImage);
                 if(!outputfile.exists()) {
                     try {
                         outputfile.createNewFile();

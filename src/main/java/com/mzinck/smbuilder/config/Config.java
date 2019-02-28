@@ -30,7 +30,7 @@ public class Config {
      * Sets the configuration parameters such as login info.
      */
     public void setConfig() {
-        File file = new File("C:\\Users\\Mitchell\\Desktop\\config.txt");
+        File file = new File(System.getProperty("user.home") + File.separator + "smbuilderconfig.txt");
         try {
             Scanner scan = new Scanner(file);
             redditUsername = scan.nextLine();
