@@ -17,5 +17,5 @@ Finished
 
 Blockage
 --------
-As I finished the first beta build of this project I found out that Instagram recently (10/9/2018) came down hard on any form of botting. I did not plan to gain followers or spam, just post content but was still met with bans and phone verification blocks. It seems that this project will have to end here due to Instagram blocking non-humans. Lots of work was done and it was a fun journey!
+As I finished the first beta build of this project I found out that Instagram recently (10/9/2018) came down hard on any form of botting. I did not plan to gain followers or spam, just post content but was still met with bans and phone verification blocks. It seems that this project will have to focus on only one account as Instagram detects my program if I am using multiple accounts.
 
